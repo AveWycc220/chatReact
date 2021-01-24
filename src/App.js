@@ -1,23 +1,24 @@
-import './App.css';
+import React, { useState, useEffect } from 'react'
+import './App.scss'
+import Loading from './components/Loading'
+import Cookie from 'js-cookie'
 
-function App() {
+
+export default function App() {
+  const [loading, setLoading] = useState(true)
+  const isAuthorized = !!(Cookie.get('name') && Cookie.get('user_id'))
+
+  useEffect(() => { setLoading(false) }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {loading === false ? (
+        <div className="App">
+          {isAuthorized ?  <p>MainPage</p> : <p>LoginPage</p> }
+        </div>
+      ) : (
+        <Loading />
+      )}
+    </>
   );
 }
-
-export default App;
