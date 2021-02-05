@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import './App.scss'
 import Loading from './components/Loading'
+import Form from './components/LoginPage/Form'
 import Cookie from 'js-cookie'
 
 
@@ -14,7 +15,7 @@ export default function App() {
     <>
       {loading === false ? (
         <div className="App">
-          {isAuthorized ?  <p>MainPage</p> : <p>LoginPage</p> }
+          {isAuthorized ?  <p>MainPage</p> : <Form /> }
         </div>
       ) : (
         <Loading />
