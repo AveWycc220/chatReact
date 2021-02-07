@@ -7,16 +7,19 @@ import '../scss/LoginPage/form.scss'
 export default class Form extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { isLoginForm: false, isSignInForm: false }
+    this.state = { isLoginForm: props.store.getState().wasLogin, isSignInForm: false }
     this.loginClick = this.loginClick.bind(this)
     this.signInClick = this.signInClick.bind(this)
+    this.submitClick = this.submitClick.bind(this)
   }
 
   loginClick() {
     let duration = 0.15
     GSAP.fromTo('.form', {opacity: 1}, {opacity: 0, duration: duration})
     setTimeout(()=> {
-      this.setState(() => { return { isLoginForm: true } })
+      this.setState(() => {
+        return { isLoginForm: true, isSignInForm: false }
+      })
     }, duration * 1000)
   }
 
@@ -24,8 +27,37 @@ export default class Form extends React.Component {
     let duration = 0.15
     GSAP.fromTo('.form', {opacity: 1}, {opacity: 0, duration: 0.25})
     setTimeout(()=> {
-      this.setState(() => { return { isSignInForm: true } })
+      this.setState(() => {
+        return { isSignInForm: true, isLoginForm: false }
+      })
     }, duration * 1000)
+  }
+
+  logOrSignInClick(type) {
+    let duration = 0.15
+        GSAP.fromTo('.form', {opacity: 1}, {opacity: 0, duration: duration})
+        setTimeout(()=> {
+          this.setState(() => {
+            return { isLoginForm: type === 'login', isSignInForm: false }
+          })
+        }, duration * 1000)
+    }
+
+  submitClick() {
+    const info = {
+      email: document.querySelector('#email').value,
+      password: document.querySelector('#password').value,
+      username: this.state.isSignInForm ? document.querySelector('#username').value : undefined
+    }
+    if (this.state.isLoginForm) {
+      if (info.email && info.password) {
+        this.props.store.getState().api.logIn(info.email, info.password)
+      } else {
+        !info.email ? GSAP.to(`#email`, {borderColor: '#c40021'}) : GSAP.to(`#password`, {borderColor: '#c40021'})
+      }
+    } else if (this.state.isSignInForm) {
+      this.props.store.getState().api.signIn()
+    }
   }
 
   componentDidMount() {
@@ -42,7 +74,8 @@ export default class Form extends React.Component {
       {type === 'signIn' ? <Input placeholder='UserName'/> : ''}
       <Input placeholder='Email'/>
       <Input placeholder='Password'/>
-      <Button type='Submit'/>
+      <Button type='Submit' onClick={this.submitClick}/>
+      {type === 'signIn' ? '' : <Button type='Sign In' onClick={this.signInClick}/>}
     </div>
   }
 
