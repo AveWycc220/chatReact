@@ -1,0 +1,28 @@
+.input-form {
+  font-size: 16px;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 500;
+  width: 20em;
+  height: 2.5em;
+  padding-left: 15px;
+  margin: 0 0 0.5em 0;
+  border: 2px solid;
+  border-color: #e0e0e0;
+  border-radius: 2px;
+  background-color: #e0e0e0;
+  &:active, &:focus {
+    outline: none;
+  }
+}
+
+@media (min-width: 2000px) {
+  .input-form {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 400px) {
+  .input-form {
+    font-size: 14px;
+  }
+}
