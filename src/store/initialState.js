@@ -6,6 +6,8 @@ const initialState = {
   auth: !!(Cookie.get('name') && Cookie.get('user_key')),
   wasLogin: !!Cookie.get('wasLogin'),
   connectionOpened: false,
+  errorForm: undefined,
+  errorServer: undefined,
 }
 
 export default initialState
