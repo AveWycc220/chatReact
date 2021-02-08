@@ -5,7 +5,7 @@ import './scss/loading.scss'
 export default class Loading extends React.Component {
   constructor(props) {
     super(props);
-    props.store.subscribe(() => {
+    this.unsubscribe = props.store.subscribe(() => {
       const loadingElement = document.querySelector('.loading')
       if (loadingElement) {
         GSAP.fromTo('.loading',{opacity: 1 },{opacity: 0, duration: 0.15})
@@ -15,6 +15,10 @@ export default class Loading extends React.Component {
 
   componentDidMount() {
     GSAP.from('.loading', {opacity: 0, duration: 0.25})
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
   }
 
   render() {
