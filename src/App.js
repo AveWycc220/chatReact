@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react'
 import './App.scss'
 import Loading from './components/Loading'
 import Form from './components/LoginPage/Form'
-import GSAP from 'gsap'
 
 export default function App(props) {
   const [connectionOpened, setConnectionOpened] = useState(props.store.getState().connectionOpened)
   const [isAuthorized, setIsAuthorized] = useState(props.store.getState().auth)
+  const authTimeoutDuration = 0.2
 
-  props.store.subscribe(() => {
+  const unsubscribe = props.store.subscribe(() => {
     const connectionOpenedTimeout = setTimeout(() => {
       setConnectionOpened(props.store.getState().connectionOpened)
       clearTimeout(connectionOpenedTimeout)
@@ -16,21 +16,18 @@ export default function App(props) {
     const authTimeout = setTimeout(() => {
       setIsAuthorized(props.store.getState().auth)
       clearTimeout(authTimeout)
-    }, 200)
+    }, authTimeoutDuration * 1000)
   })
 
   useEffect(() => {
-    const appElem = document.querySelector('.App')
-    if (appElem) {
-      GSAP.fromTo('.App', {opacity: 0}, {opacity: 1, duration: 0.35})
-    }
+    return () => { unsubscribe() }
   })
 
   return (
     <>
       {connectionOpened ? (
         <div className="App">
-          {isAuthorized ?  <p>MainPage</p> : <Form store={props.store} /> }
+          {isAuthorized ?  <p>MainPage</p> : <Form store={props.store} authTimeoutDuration={authTimeoutDuration} /> }
         </div>
       ) : (
         <Loading store={props.store}/>
