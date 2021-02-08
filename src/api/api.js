@@ -22,6 +22,14 @@ export default class API {
       password: password
     }
     this.socket.send(JSON.stringify(obj))
+    this.socket.onmessage = function(e) {
+      const res = JSON.parse(e.data)
+      if (res.status === 1) {
+        store.dispatch({type: 'SIGN_IN'})
+      } else {
+        store.dispatch({type: 'ALREADY_EXIST'})
+      }
+    }
   }
 
   logIn(email, password) {
@@ -37,6 +45,8 @@ export default class API {
         Cookie.set('user_key', res.user_key, {path: '/', expires: 7})
         Cookie.set('name', res.name, {path: '/', expires: 7})
         store.dispatch({type: 'LOGIN'})
+      } else {
+        store.dispatch({type: 'WRONG_EMAIL_OR_PASSWORD'})
       }
     }
   }
