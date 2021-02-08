@@ -7,7 +7,7 @@ import '../scss/LoginPage/form.scss'
 export default class Form extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { isLoginForm: props.store.getState().wasLogin, isSignInForm: false }
+    this.state = { isLoginForm: props.store.getState().wasLogin, isSignInForm: false, errorMessage: undefined }
     this.logOrSignInClick = this.logOrSignInClick.bind(this)
     this.submitClick = this.submitClick.bind(this)
     this.enterPress = this.enterPress.bind(this)
@@ -15,16 +15,24 @@ export default class Form extends React.Component {
 
   // Events
 
-  logOrSignInClick(type) {
-    return function() {
-      const duration = 0.15
-      GSAP.fromTo('.form', {opacity: 1}, {opacity: 0, duration: duration})
-      const changeFormTimeout = setTimeout(() => {
+  logOrSignInClick(type, form = false) {
+    return function () {
+      const duration = this.props.authTimeoutDuration
+      this._opacityAnimation(duration)
+      this.logOrSignInClickTimeoit = setTimeout(() => {
         this.setState(() => {
-          return {isLoginForm: type === 'login', isSignInForm: type === 'signIn'}
+          return {isLoginForm: type === 'login', isSignInForm: type === 'signIn', errorMessage: undefined}
         })
-        clearTimeout(changeFormTimeout)
+        clearTimeout(this.logOrSignInClickTimeoit)
       }, duration * 1000)
+      if (form) {
+        const formInputs = {
+          email: document.querySelector('#email'),
+          password: document.querySelector('#password'),
+          username: document.querySelector('#username')
+        }
+        this._inputsToDefault(formInputs)
+      }
     }.bind(this)
   }
 
@@ -32,26 +40,41 @@ export default class Form extends React.Component {
     const info = this._getInfo()
     if (this.state.isLoginForm) {
       if (info.email && info.password) {
+        const duration = 0.2
         this.props.store.getState().api.logIn(info.email, info.password)
-        GSAP.fromTo('.form', {opacity: 1}, {opacity: 0, duration: 0.2})
+        this.props.store.subscribe(() => {
+          if (this.props.store.getState().auth) {
+            this._opacityAnimation(duration, true)
+          }
+        })
+        const infoInputs = {
+          email: document.querySelector('#email'),
+          password: document.querySelector('#password'),
+          username: document.querySelector('#username')
+        }
+        infoInputs.email.focus()
       } else {
         this._inputsToRed(info)
       }
     } else if (this.state.isSignInForm) {
       if (info.email && info.password && info.username) {
-        this.props.store.getState().api.signIn(info.email, info.password, info.username)
-        const emailInput = document.querySelector('#email')
-        const passwordInput = document.querySelector('#password')
-        GSAP.fromTo('.form', {opacity: 1}, {opacity: 0, duration: 0.15})
-        const changeFormTimeout = setTimeout(() => {
-          emailInput.focus()
-          emailInput.value = ''
-          passwordInput.value = ''
-          emailInput.style.borderColor = '#e0e0e0'
-          passwordInput.style.borderColor = '#e0e0e0'
-          this.setState(() => { return {isLoginForm: true, isSignInForm: false} })
-          clearTimeout(changeFormTimeout)
-        }, 150)
+        const duration = 0.2
+        this._opacityAnimation(duration)
+        this.signInTimeout = setTimeout(() => {
+          this.props.store.getState().api.signIn(info.email, info.password, info.username)
+          const infoInputs = {
+            email: document.querySelector('#email'),
+            password: document.querySelector('#password'),
+            username: document.querySelector('#username')
+          }
+          infoInputs.email.focus()
+          this._clearInputs(infoInputs)
+          this._inputsToDefault(infoInputs)
+          this.setState(() => {
+            return {isLoginForm: true, isSignInForm: false}
+          })
+          clearTimeout(this.signInTimeout)
+        }, duration * 1000)
       } else {
         this._inputsToRed(info)
       }
@@ -69,11 +92,25 @@ export default class Form extends React.Component {
   // Lifecycle
 
   componentDidMount() {
+    this.unsubscribeError = this.props.store.subscribe(() => {
+        this.setState((state, props) => { return { errorMessage: props.store.getState().errorForm }})
+    })
     GSAP.from('.form', {opacity: 0, duration: 0.75})
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    GSAP.fromTo('.form', {opacity: 0}, {opacity: 1, duration: 0.35})
+  componentWillUnmount() {
+    if (this.opacityTimeout) { clearTimeout(this.opacityTimeout) }
+    this.unsubscribeError()
+  }
+
+  _opacityAnimation(duration, withoutAppear=false) {
+    GSAP.fromTo('.form', {opacity: 1}, {opacity: 0, duration: duration})
+    if (!withoutAppear) {
+      this.opacityTimeout = setTimeout(() => {
+        GSAP.fromTo('.form', {opacity: 0}, {opacity: 1, duration: duration})
+        clearTimeout(this.opacityTimeout)
+      }, duration * 1000)
+    }
   }
 
   _getInfo() {
@@ -92,14 +129,35 @@ export default class Form extends React.Component {
     }
   }
 
+  _inputsToDefault(info) {
+    for (let elem in info) {
+      if (info.hasOwnProperty(elem) && info[elem]) {
+        if (!info[elem].value) { info[elem].style.borderColor = '#e0e0e0' }
+      }
+    }
+  }
+
+  _clearInputs(info) {
+    for (let elem in info) {
+      if (info.hasOwnProperty(elem) && info[elem]) {
+        if (info[elem].value) {
+          info[elem].value = ''
+        }
+      }
+    }
+  }
+
   _getInfoForm(type) {
     return <div className='form'>
       <h2 className='title'>{type === 'login' ? 'Log In' : 'Sign In'}</h2>
+      {this.state.errorMessage ?
+        <h3 className='errorMessage'>{this.state.errorMessage}</h3> : '' }
       {type === 'signIn' ? <Input placeholder='UserName'/> : ''}
       <Input placeholder='Email'/>
       <Input placeholder='Password'/>
       <Button type='Submit' onClick={this.submitClick} enterPress={this.enterPress}/>
-      {type === 'signIn' ? '' : <Button type='Sign In' onClick={this.logOrSignInClick('signIn')}/>}
+      {type === 'signIn' ? '' : <Button type='Sign In' onClick={this.logOrSignInClick('signIn', true)}/>}
+      {type === 'login' ? '' : <Button type='Log In' onClick={this.logOrSignInClick('login', true)}/>}
     </div>
   }
 
