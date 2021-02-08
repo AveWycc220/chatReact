@@ -42,7 +42,7 @@ export default class Form extends React.Component {
       if (info.email && info.password) {
         const duration = 0.2
         this.props.store.getState().api.logIn(info.email, info.password)
-        this.props.store.subscribe(() => {
+        this.logInAnimationUnsubscribe = this.props.store.subscribe(() => {
           if (this.props.store.getState().auth) {
             this._opacityAnimation(duration, true)
           }
@@ -100,6 +100,9 @@ export default class Form extends React.Component {
 
   componentWillUnmount() {
     if (this.opacityTimeout) { clearTimeout(this.opacityTimeout) }
+    if (this.signInTimeout) { clearTimeout(this.signInTimeout) }
+    if (this.logOrSignInClickTimeoit) { clearTimeout(this.logOrSignInClickTimeoit) }
+    this.logInAnimationUnsubscribe()
     this.unsubscribeError()
   }
 
