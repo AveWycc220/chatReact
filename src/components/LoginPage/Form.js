@@ -179,10 +179,12 @@ export default class Form extends React.Component {
     } else if (this.state.isSignInForm) {
       return this._getInfoForm('signIn')
     }
-    return <div className='form'>
-      <h2 className='title'>Chat-React</h2>
-      <Button type='Log In' onClick={this.logOrSignInClick('login')} enterPress={this.enterPress}/>
-      <Button type='Sign In' onClick={this.logOrSignInClick('signIn')}/>
-    </div>
+    return <form>
+      <div className='form'>
+        <h2 className='title'>Chat-React</h2>
+        <Button type='Log In' onClick={this.logOrSignInClick('login')} enterPress={this.enterPress}/>
+        <Button type='Sign In' onClick={this.logOrSignInClick('signIn')}/>
+      </div>
+    </form>
   }
 }
