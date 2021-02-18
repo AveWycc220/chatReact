@@ -9,8 +9,15 @@ export default class API {
       this.socket.onopen = function () {
         store.dispatch({type: 'CONNECTION_OPENED'})
       }
+      this.socket.onclose = function (e) {
+        store.dispatch({type: 'SERVER_ERROR', value: `CODE = ${e.code} | REASON = ${e.reason}
+        CONNECTION CLOSED`})
+      }
+      this.socket.onerror = function (e) {
+        store.dispatch({type: 'SERVER_ERROR', value: `MESSAGE = ${e.message}`})
+      }
     } catch(e) {
-      console.log(`Server-Error. ${e}`)
+      store.dispatch({type: 'SERVER_ERROR', value: `ERROR = ${e}`})
     }
   }
 
@@ -40,10 +47,11 @@ export default class API {
     }
     this.socket.send(JSON.stringify(obj))
     this.socket.onmessage = function(e) {
-      const res = JSON.parse(e.data)
-      if (res.status === 1) {
-        Cookie.set('user_key', res.user_key, {path: '/', expires: 7})
-        Cookie.set('name', res.name, {path: '/', expires: 7})
+      const {name, status, user_key} = JSON.parse(e.data)
+      if (status === 1) {
+        Cookie.set('user_key', user_key, {path: '/', expires: 7})
+        Cookie.set('name', name, {path: '/', expires: 7})
+        Cookie.set('wasLogin', '1', {path: '/', expires: 14})
         store.dispatch({type: 'LOGIN'})
       } else {
         store.dispatch({type: 'WRONG_EMAIL_OR_PASSWORD'})
