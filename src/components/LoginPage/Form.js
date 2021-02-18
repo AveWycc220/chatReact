@@ -39,45 +39,9 @@ export default class Form extends React.Component {
   submitClick() {
     const info = this._getInfo()
     if (this.state.isLoginForm) {
-      if (info.email && info.password) {
-        const duration = 0.2
-        this.props.store.getState().api.logIn(info.email, info.password)
-        this.logInAnimationUnsubscribe = this.props.store.subscribe(() => {
-          if (this.props.store.getState().auth) {
-            this._opacityAnimation(duration, true)
-          }
-        })
-        const infoInputs = {
-          email: document.querySelector('#email'),
-          password: document.querySelector('#password'),
-          username: document.querySelector('#username')
-        }
-        infoInputs.email.focus()
-      } else {
-        this._inputsToRed(info)
-      }
+      this._submitLogin(info)
     } else if (this.state.isSignInForm) {
-      if (info.email && info.password && info.username) {
-        const duration = 0.2
-        this._opacityAnimation(duration)
-        this.signInTimeout = setTimeout(() => {
-          this.props.store.getState().api.signIn(info.email, info.password, info.username)
-          const infoInputs = {
-            email: document.querySelector('#email'),
-            password: document.querySelector('#password'),
-            username: document.querySelector('#username')
-          }
-          infoInputs.email.focus()
-          this._clearInputs(infoInputs)
-          this._inputsToDefault(infoInputs)
-          this.setState(() => {
-            return {isLoginForm: true, isSignInForm: false}
-          })
-          clearTimeout(this.signInTimeout)
-        }, duration * 1000)
-      } else {
-        this._inputsToRed(info)
-      }
+      this._submitSignIn(info)
     }
   }
 
@@ -102,8 +66,52 @@ export default class Form extends React.Component {
     if (this.opacityTimeout) { clearTimeout(this.opacityTimeout) }
     if (this.signInTimeout) { clearTimeout(this.signInTimeout) }
     if (this.logOrSignInClickTimeoit) { clearTimeout(this.logOrSignInClickTimeoit) }
-    this.logInAnimationUnsubscribe()
-    this.unsubscribeError()
+    if (typeof this.logInAnimationUnsubscribe === 'function') { this.logInAnimationUnsubscribe() }
+    if (typeof this.unsubscribeError === 'function') { this.unsubscribeError() }
+  }
+
+  _submitLogin(info) {
+    if (info.email && info.password) {
+      const duration = 0.2
+      this.props.store.getState().api.logIn(info.email, info.password)
+      this.logInAnimationUnsubscribe = this.props.store.subscribe(() => {
+        if (this.props.store.getState().auth) {
+          this._opacityAnimation(duration, true)
+        }
+      })
+      const infoInputs = {
+        email: document.querySelector('#email'),
+        password: document.querySelector('#password'),
+        username: document.querySelector('#username')
+      }
+      infoInputs.email.focus()
+    } else {
+      this._inputsToRed(info)
+    }
+  }
+
+  _submitSignIn(info) {
+    if (info.email && info.password && info.username) {
+      const duration = 0.2
+      this._opacityAnimation(duration)
+      this.signInTimeout = setTimeout(() => {
+        this.props.store.getState().api.signIn(info.email, info.password, info.username)
+        const infoInputs = {
+          email: document.querySelector('#email'),
+          password: document.querySelector('#password'),
+          username: document.querySelector('#username')
+        }
+        infoInputs.email.focus()
+        this._clearInputs(infoInputs)
+        this._inputsToDefault(infoInputs)
+        this.setState(() => {
+          return {isLoginForm: true, isSignInForm: false}
+        })
+        clearTimeout(this.signInTimeout)
+      }, duration * 1000)
+    } else {
+      this._inputsToRed(info)
+    }
   }
 
   _opacityAnimation(duration, withoutAppear=false) {
@@ -111,7 +119,6 @@ export default class Form extends React.Component {
     if (!withoutAppear) {
       this.opacityTimeout = setTimeout(() => {
         GSAP.fromTo('.form', {opacity: 0}, {opacity: 1, duration: duration})
-        clearTimeout(this.opacityTimeout)
       }, duration * 1000)
     }
   }
