@@ -151,17 +151,19 @@ export default class Form extends React.Component {
   }
 
   _getInfoForm(type) {
-    return <div className='form'>
-      <h2 className='title'>{type === 'login' ? 'Log In' : 'Sign In'}</h2>
-      {this.state.errorMessage ?
-        <h3 className='errorMessage'>{this.state.errorMessage}</h3> : '' }
-      {type === 'signIn' ? <Input placeholder='UserName'/> : ''}
-      <Input placeholder='Email'/>
-      <Input placeholder='Password'/>
-      <Button type='Submit' onClick={this.submitClick} enterPress={this.enterPress}/>
-      {type === 'signIn' ? '' : <Button type='Sign In' onClick={this.logOrSignInClick('signIn', true)}/>}
-      {type === 'login' ? '' : <Button type='Log In' onClick={this.logOrSignInClick('login', true)}/>}
-    </div>
+    return <form>
+      <div className='form'>
+        <h2 className='title'>{type === 'login' ? 'Log In' : 'Sign In'}</h2>
+        {this.state.errorMessage ?
+          <h3 className='errorMessage'>{this.state.errorMessage}</h3> : '' }
+        {type === 'signIn' ? <Input inputName='UserName'/> : ''}
+        <Input inputName='Email'/>
+        <Input inputName='Password'/>
+        <Button type='Submit' onClick={this.submitClick} enterPress={this.enterPress}/>
+        {type === 'signIn' ? '' : <Button type='Sign In' onClick={this.logOrSignInClick('signIn', true)}/>}
+        {type === 'login' ? '' : <Button type='Log In' onClick={this.logOrSignInClick('login', true)}/>}
+      </div>
+    </form>
   }
 
   render() {

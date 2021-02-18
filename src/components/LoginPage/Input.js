@@ -4,12 +4,12 @@ import '../scss/LoginPage/input.scss'
 
 export default class Input extends React.Component {
   componentDidMount() {
-    document.querySelector(`#${this.props.placeholder.toLowerCase()}`)
+    document.querySelector(`#${this.props.inputName.toLowerCase()}`)
       .addEventListener('input', this.inputChange.bind(this))
   }
 
   componentWillUnmount() {
-    document.querySelector(`#${this.props.placeholder.toLowerCase()}`)
+    document.querySelector(`#${this.props.inputName.toLowerCase()}`)
       .removeEventListener('input', this.inputChange.bind(this))
   }
 
@@ -24,9 +24,10 @@ export default class Input extends React.Component {
 
   render() {
     return <input
-      type={this.props.placeholder.toLowerCase()}
-      placeholder={this.props.placeholder}
-      id={this.props.placeholder.toLowerCase()}
+      autoComplete={this.props.inputName === 'Password' ? 'on' : ''}
+      type={this.props.inputName.toLowerCase()}
+      placeholder={this.props.inputName}
+      id={this.props.inputName.toLowerCase()}
       className='input-form'
       maxLength={35}
     />

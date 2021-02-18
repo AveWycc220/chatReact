@@ -4,7 +4,10 @@ import '../scss/LoginPage/button.scss'
 export default class Button extends React.Component {
   componentDidMount() {
     document.querySelector(`.${this.props.type.replace(' ', '-').toLowerCase() + '-btn'}`)
-      .addEventListener('click', this.props.onClick)
+      .addEventListener('click', (e) => {
+        this.props.onClick()
+        e.preventDefault()
+      })
     if (this.props.type === 'Log In') {
       document.addEventListener('keydown', this.props.enterPress)
     } else if (this.props.type === 'Submit') {
@@ -14,7 +17,10 @@ export default class Button extends React.Component {
 
   componentWillUnmount() {
     document.querySelector(`.${this.props.type.replace(' ', '-').toLowerCase() + '-btn'}`)
-      .removeEventListener('click', this.props.onClick)
+      .removeEventListener('click', (e) => {
+        this.props.onClick()
+        e.preventDefault()
+      })
     if (this.props.type === 'Log In') {
       document.removeEventListener('keydown', this.props.enterPress)
     } else if (this.props.type === 'Submit') {
