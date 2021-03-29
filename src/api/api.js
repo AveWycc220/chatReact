@@ -10,13 +10,15 @@ export default class API {
         store.dispatch({type: 'CONNECTION_OPENED'})
       }
       this.socket.onclose = function (e) {
-        store.dispatch({type: 'SERVER_ERROR', value: `CODE = ${e.code} | REASON = ${e.reason}
-        CONNECTION CLOSED`})
+        store.dispatch({
+          type: 'SERVER_ERROR', value: `CODE = ${e.code} | REASON = ${e.reason}
+        CONNECTION CLOSED`
+        })
       }
       this.socket.onerror = function (e) {
         store.dispatch({type: 'SERVER_ERROR', value: `MESSAGE = ${e.message}`})
       }
-    } catch(e) {
+    } catch (e) {
       store.dispatch({type: 'SERVER_ERROR', value: `ERROR = ${e}`})
     }
   }
@@ -29,7 +31,7 @@ export default class API {
       password: password
     }
     this.socket.send(JSON.stringify(obj))
-    this.socket.onmessage = function(e) {
+    this.socket.onmessage = function (e) {
       const res = JSON.parse(e.data)
       if (res.status === 1) {
         store.dispatch({type: 'SIGN_IN'})
@@ -46,7 +48,7 @@ export default class API {
       password: password,
     }
     this.socket.send(JSON.stringify(obj))
-    this.socket.onmessage = function(e) {
+    this.socket.onmessage = function (e) {
       const {name, status, user_key} = JSON.parse(e.data)
       if (status === 1) {
         Cookie.set('user_key', user_key, {path: '/', expires: 7})
@@ -58,7 +60,25 @@ export default class API {
       }
     }
   }
-//TODO SEND, LOGOUT, GETMASSGELIST, DELETE, EDIT
+
+  logOut() {
+    const obj = {
+      command: 'user_exit',
+      user_key: Cookie.get('id')
+    }
+    this.socket.send(JSON.stringify(obj))
+    this.socket.onmessage = function (e) {
+      if (JSON.parse(e.data).status === 1) {
+        store.dispatch({type: 'LOGOUT'})
+        Cookie.remove('id')
+        Cookie.remove('name')
+      } else {
+        store.dispatch({type: 'SERVER_ERROR', value: `ERROR = ${JSON.parse(e.data).message}`})
+      }
+    }
+  }
+
+//TODO SEND, GETMASSGELIST, DELETE, EDIT
 
 /*  send(message) {
     const obj = {

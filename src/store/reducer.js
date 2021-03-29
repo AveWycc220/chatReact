@@ -6,6 +6,7 @@ function reducer(state, action) {
     case 'WRONG_EMAIL_OR_PASSWORD': return { ...state, errorForm: 'Wrong Email or Password' }
     case 'ALREADY_EXIST': return { ...state, errorForm: 'User with this Email is already exist' }
     case 'SERVER_ERROR': return { ...state, errorServer: action.value }
+    case 'LOGOUT': return {...state, auth: false}
     default: return state
   }
 }

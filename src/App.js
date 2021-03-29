@@ -3,6 +3,7 @@ import './App.scss'
 import Loading from './components/Loading'
 import Form from './components/LoginPage/Form'
 import Error from './components/Error'
+import MainPage from './components/ChatPage/MainPage'
 
 export default function App(props) {
   const [connectionOpened, setConnectionOpened] = useState(props.store.getState().connectionOpened)
@@ -30,7 +31,7 @@ export default function App(props) {
     <>
       {connectionOpened ? (
         <div className="App">
-          {isAuthorized ?  <p>MainPage</p> : <Form store={props.store} authTimeoutDuration={authTimeoutDuration} /> }
+          {isAuthorized ? <MainPage store={props.store}/> : <Form store={props.store} authTimeoutDuration={authTimeoutDuration} /> }
         </div>
       ) : (
         errorServer ? <Error errorInfo={props.store.getState().errorServer}/> : <Loading store={props.store}/>
